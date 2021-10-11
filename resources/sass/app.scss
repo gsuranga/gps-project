@@ -1,0 +1,63 @@
+#app h2 {
+  text-transform: uppercase;
+  font-weight: 800;
+  text-align: center;
+
+  box-shadow: none;
+  border: none;
+  background-color: white;
+  color: black;
+}
+#app .heading {
+  font-size: 2rem;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+#app strong {
+  text-align: left;
+  position: relative;
+  font-size: small;
+  top: 25%;
+  left: 15px;
+}
+#app .v-text-field,
+#app .v-select {
+  margin: 0;
+  padding: 0;
+  max-height: 40px;
+  height: 40px;
+}
+
+#app .v-card {
+  text-align: center;
+  box-shadow: none;
+  border: none;
+  margin: auto;
+}
+
+#app .mainCard {
+  width: 1280;
+}
+
+#app .mainBtn {
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+#app .v-subheader {
+  font-weight: 900;
+  color: black;
+  display: block;
+  margin: auto;
+  height: fit-content;
+  margin-top: 10px;
+}
+
+#app .inputSubHeader {
+  background-color: red;
+}
+
+#app .v-banner__wrapper {
+  border: none;
+}

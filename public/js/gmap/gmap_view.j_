@@ -1,0 +1,132 @@
+$(function () {
+  loadTsos();
+  loadTerritories();
+  // Load_Map();
+});
+
+function loadTerritories(){
+  $.ajax({
+    url: "/api/common/loadTerritories",
+    type: "POST",
+    headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+    data: {},
+    success: function (data) {
+      var res = data.data;
+      $("#territories").empty();
+      $("#territories").append('<option value="">All Territory</option>');
+      for (var k = 0; k < res.length; k++) {
+        $("#territories").append(
+          '<option value="' + res[k]["id"] +'">'  +res[k]["territory_name"] + '</option>'
+        );
+      }
+    },
+  });
+}
+
+function getRoute(){
+  var territory_id = $('#territories').val();
+  $.ajax({
+    url: "/api/common/territory/routes",
+    type: "POST",
+    headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+    data: {
+      territory_id:territory_id
+    },
+    success: function (data) {
+      var res = data.data;
+      console.log(res);
+      $("#route_selt").empty();
+      $("#route_selt").append('<option value="">All Routes</option>');
+      for (var k = 0; k < res.length; k++) {
+        $("#route_selt").append(
+          '<option value="' + res[k]["id"] +'">'  +res[k]["route_name"] + '</option>'
+        );
+      }
+    },
+  });
+}
+
+
+function loadTsos() {
+  $.ajax({
+    url: "/api/common/loadTsos",
+    type: "POST",
+    headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+    data: {},
+    success: function (data) {
+      var res = data.data;
+      $("#tso_id").empty();
+      $("#tso_id").append('<option value="">All Tsos</option>');
+      for (var k = 0; k < res.length; k++) {
+        $("#tso_id").append(
+          '<option value="' +
+            res[k]["u_id"] +
+            '">' +
+            res[k]["fname"] +
+            " " +
+            res[k]["lname"] +
+            "</option>"
+        );
+      }
+    },
+  });
+}
+
+function getTime() {
+  $("#from").find("option:gt(0)").remove();
+  $("#to").find("option:gt(0)").remove();
+  var rep_name = $("#tso_id option:selected").text();
+  $("#rep_name").val(rep_name);
+  var date = $("#date").val();
+  var tso = $("#tso_id").val();
+  $.ajax({
+    url:"/api/gmap/tsoRepAttendance",
+    type:"GET",
+    headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+    data:{
+      date: date,
+      tso: tso,
+    },
+    success:function(data){
+      $('#st_time').val(data[0].check_in_time);
+      $('#ed_time').val(data[0].check_out_time);
+      // $('#mileage').text(data.check_in_mileage);
+    }
+  });
+
+
+  $.ajax({
+    url: "/api/gmap/tsoRoutingTime",
+    type: "GET",
+    headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+    data: {
+      date: date,
+      tso: tso,
+    },
+    success: function (data) {
+      $("#from").empty();
+      $("#to").empty();
+
+      $("#from").append('<option value="">SELECT</option>');
+      $("#to").append('<option value="">SELECT</option>');
+      for (var i = 0; i < data.length; i++) {
+        $("#from").append(
+          "<option value=" +
+            data[i].gps_timestamp +
+            ">" +
+            data[i].gps_timestamp +
+            "</option>"
+        );
+        $("#to").append(
+          "<option value=" +
+            data[i].gps_timestamp +
+            ">" +
+            data[i].gps_timestamp +
+            "</option>"
+        );
+      }
+    },
+  });
+}
+
+

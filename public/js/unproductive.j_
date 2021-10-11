@@ -1,0 +1,175 @@
+$(document).ready(function(){
+    searchUnproductive();
+});
+
+function searchUnproductive(){
+    $('#spinner').show();
+    var from = $('#from').val();
+    var to = $('#to').val();
+    var tso_id = $('#tso_id').val();
+    var dis_id = $('#dis_id').val();
+    var territory_id = $('#territory_id').val();
+    var r_id = $('#r_id').val();
+    if(from !="" && to !=""){
+
+        if(from <= to){
+            $.ajax({
+                url:'/unproductiveDetailSearch',
+                type:'POST',
+                headers:{
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data:{
+                    from:from,
+                    to:to,
+                    r_id:r_id,
+                    tso_id:tso_id,
+                    territory_id:territory_id,
+                    dis_id:dis_id
+                },
+                success:function(data){
+                    var res = JSON.parse(data);
+                    console.log(res);
+                    $('#unpro_div').empty();
+                    if(res.length === 0){
+                        $('#unpro_div').append('<tr><td colspan="6" align="center" style="color:red"><b>DATA NOT FOUND</b></td></tr>')
+                        $('#excel_div').hide();
+                        var scrollPos =  $(".unpro_filter").offset().top;
+                        $(window).scrollTop(scrollPos);
+                    }else{
+                        for(k=0; k<res.length; k++){
+                            var dateTime = res[k]['dateTime'];
+                            const dateArr = dateTime.split(" ");
+                            $('#unpro_div').append('<tr>'
+                                                    +'<td>'+res[k]['fname']+' '+res[k]['lname']+'</td>'
+                                                    +'<td>'+res[k]['route_name']+'</td>'
+                                                    +'<td>'+res[k]['customer_name']+'</td>'
+                                                    +'<td>'+dateArr[0]+'</td>'
+                                                    +'<td>'+dateArr[1]+'</td>'
+                                                    +'<td>'+res[k]['remark']+'</td>'
+                                                +'</tr>')
+                        }
+                        $('#excel_div').show();
+                        var scrollPos =  $(".unpro_table_view").offset().top;
+                        $(window).scrollTop(scrollPos);
+                    }
+                },
+                complete:function(){
+                    $('#spinner').hide();
+                }
+            })
+        }else{
+            alert("'To' Date Cannot Be Less than 'From' Date");
+            $('#spinner').hide();
+        }
+    
+    }else{
+        alert("Please choose date");
+        $('#spinner').hide();
+    }
+}
+
+function loadTsos(){
+    var dis_id = $('#dis_id').val();
+    $.ajax({
+        url:'/loadTsos',
+        type:'POST',
+        headers:{
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data:{
+            dis_id:dis_id
+        },
+        success:function(data){
+            var res = JSON.parse(data);
+            console.log(res);
+            $('#tso_id').empty();
+            $('#tso_id').append('<option value="">All Tso</option>');
+            for(var k=0; k<res.length; k++){
+                $('#tso_id').append('<option value="'+res[k]['u_id']+'">'+res[k]['fname']+' '+res[k]['lname']+'</option>')
+            }
+        }
+    })
+}
+
+function loadTsosRelateTerritory(){
+    var territory_id = $('#territory_id').val();
+    $.ajax({
+        url:'/loadTsosRelateTerritory',
+        type:'POST',
+        headers:{
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data:{
+            territory_id:territory_id
+        },
+        success:function(data){
+            var res = JSON.parse(data);
+            console.log(res);
+            $('#tso_id').empty();
+            $('#tso_id').append('<option value="">All Tso</option>');
+            for(var k=0; k<res.length; k++){
+                $('#tso_id').append('<option value="'+res[k]['u_id']+'">'+res[k]['fname']+' '+res[k]['lname']+'</option>')
+            }
+        }
+    })
+}
+
+function loadDistributor(){
+    var territory_id = $('#territory_id').val();
+    $.ajax({
+        url:'/loadDistributors',
+        type:'POST',
+        headers:{
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data:{
+            territory_id:territory_id
+        },
+        success:function(data){
+            var res = JSON.parse(data);
+            $('#dis_id').empty();
+            $('#dis_id').append('<option value="">All Distributor</option>')
+            for(var k=0; k<res.length; k++){
+                $('#dis_id').append('<option value="'+res[k]['u_id']+'">'+res[k]['fname']+' '+res[k]['lname']+'</option>')
+            }
+        }
+    })
+
+    loadTsosRelateTerritory();
+    loadRoute();
+}
+
+function loadRoute(){
+    var territory_id = $('#territory_id').val();
+    $.ajax({
+        url:'/loadRoutes',
+        type:'POST',
+        headers:{
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data:{
+            territory_id:territory_id
+        },
+        success:function(data){
+            var res = JSON.parse(data);
+            $('#r_id').empty();
+            $('#r_id').append('<option value="">All Routes</option>')
+            for(var k=0; k<res.length; k++){
+                $('#r_id').append('<option value="'+res[k]['id']+'">'+res[k]['route_name']+'</option>')
+            }
+        }
+    })
+}
+
+function printexcel() {
+    //creating a temporary HTML link element (they support setting file names)
+    var a = document.createElement('a');
+    //getting data from our div that contains the HTML table
+    var data_type = 'data:application/vnd.ms-excel';
+    var table_div = document.getElementById('printexcel');
+    var table_html = table_div.outerHTML;
+    //just in case, prevent default behaviour
+    var blob = new Blob([table_html], {type: data_type});
+    saveAs(blob, "UNPRODUCTIVE REPORT.xls");
+}
