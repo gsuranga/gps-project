@@ -25,6 +25,9 @@ npm i
 ```
 
 ## Run
+```
+npm run watch
+```
 
 ```
 php artisan serve
